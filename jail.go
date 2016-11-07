@@ -1,4 +1,4 @@
-package main
+package jail
 
 // #include "jailwrapper.h"
 import (
@@ -16,5 +16,5 @@ func New(cmd string) *Jail {
 }
 
 func (j *Jail) Destroy() {
-
+	j.Wrapper.destroy()
 }
