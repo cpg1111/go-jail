@@ -1,5 +1,7 @@
 package jail
 
+// +build freebsd, !linux, !darwin
+
 // #include "jailwrapper.h"
 import (
 	"C"
