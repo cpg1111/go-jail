@@ -1,6 +1,6 @@
-package jail
-
 // +build freebsd, !linux, !darwin
+
+package jail
 
 // #include "jailwrapper.h"
 import (
@@ -18,5 +18,5 @@ func New(cmd string) *Jail {
 }
 
 func (j *Jail) Destroy() {
-	j.Wrapper.destroy()
+	C.destroy(j.Wrapper)
 }
