@@ -8,7 +8,7 @@ import (
 )
 
 type Jail struct {
-	Wrapper C.jailwrapper
+	Wrapper *C.JailWrapper
 }
 
 func New(cmd string) *Jail {
