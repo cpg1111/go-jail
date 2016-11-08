@@ -5,9 +5,9 @@
 
 #ifndef JAILWRAPPER_H_
 #define JAILWRAPPER_H_
-    typedef struct 
+    typedef struct JailWrapper
     {
-        jail *bsd_jail;
+        struct jail *bsd_jail;
         uid_t user;
         pid_t pid;
     } JailWrapper;

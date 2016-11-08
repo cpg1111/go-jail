@@ -1,5 +1,7 @@
-#include <net/inet.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 #include "jailwrapper.h"
 
@@ -10,21 +12,19 @@ char* slice_cmd(char* cmd, int begin, int end)
     return result;
 }
 
-char** split_cmd(char* cmd, char delim)
+void split_cmd(char* cmd, char delim, char*** result)
 {
-    char* result[sizeof(cmd)];
     int index = 0;
     int begin = 0;
     for(int i = 0; i < sizeof(cmd); i++)
     {
         if(cmd[i] == delim)
         {
-            result[index] = slice_cmd(cmd, begin, i);
+            *result[index] = slice_cmd(cmd, begin, i);
             begin = i + 1;
             index++;
         }
     }
-    return result;
 }
 
 pid_t jexec(char* cmd, int jid)
@@ -34,7 +34,8 @@ pid_t jexec(char* cmd, int jid)
         return pid;
     else if(pid == 0)
     {
-        char **cmd_list;
+        char *cmd_list[sizeof(cmd)];
+        split_cmd(cmd, ' ', (char***)(&cmd_list));
         jail_attach(jid);
         execve(cmd_list[0], cmd_list, NULL);
     }
@@ -42,14 +43,15 @@ pid_t jexec(char* cmd, int jid)
     {
         printf("created jail\n");
     }
+    return pid;
 }
 
 struct JailWrapper* new_jail_wrapper(char* cmd)
 {
     struct jail *_jail = (struct jail*) calloc(6, sizeof(jail));
-    struct in_addr *i_addr = (struct in_addr*) calloc(1, sizeof(in_addr));
+    struct in_addr *i_addr = (struct in_addr*) calloc(1, sizeof(struct in_addr));
     inet_aton("0.0.0.0", i_addr);
-    _jail->version = "10.2";
+    _jail->version = 10;
     _jail->path = "/tmp/";
     _jail->hostname = "spawnd";
     _jail->jailname = "spawnd";
@@ -57,13 +59,14 @@ struct JailWrapper* new_jail_wrapper(char* cmd)
     _jail->ip4 = i_addr;
     int jid = jail(_jail);
     pid_t pid = jexec(cmd, jid);
-    struct JailWrapper *jail_wrapper = (struct JailWrapper*) calloc(3, JailWrapper);
+    struct JailWrapper *jail_wrapper = (struct JailWrapper*) calloc(3, sizeof(struct JailWrapper));
     jail_wrapper->bsd_jail = _jail;
     jail_wrapper->pid = pid;
     jail_wrapper->user = getuid();
+    return jail_wrapper;
 }
 
 void destroy(struct JailWrapper *wrapper)
 {
-    free(*jail);
+    free(wrapper);
 }
