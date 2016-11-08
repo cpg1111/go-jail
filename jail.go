@@ -1,19 +1,19 @@
 // +build freebsd, !linux, !darwin
-
 package jail
 
 // #include "jailwrapper.h"
-import (
-	"C"
-)
+import "C"
+import "unsafe"
 
 type Jail struct {
-	Wrapper *C.JailWrapper
+	Wrapper unsafe.Pointer
 }
 
 func New(cmd string) *Jail {
+	var jail *C.JailWrapper
+	jail = C.new_jail_wrapper(C.CString(cmd))
 	return &Jail{
-		Wrapper: C.new_jail_wrapper(C.CString(cmd)),
+		Wrapper: unsafe.Pointer(jail),
 	}
 }
 
