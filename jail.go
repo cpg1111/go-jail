@@ -3,17 +3,23 @@
 package jail
 
 // #include "jailwrapper.h"
+import "C"
+
 import (
-	"C"
+	"runtime/debug"
+	"unsafe"
 )
 
 type Jail struct {
-	Wrapper *C.JailWrapper
+	Wrapper unsafe.Pointer
 }
 
 func New(cmd string) *Jail {
+	var jail *C.JailWrapper
+	jail = C.new_jail_wrapper(C.CString(cmd))
+	debug.PrintStack()
 	return &Jail{
-		Wrapper: C.new_jail_wrapper(C.CString(cmd)),
+		Wrapper: unsafe.Pointer(jail),
 	}
 }
 
