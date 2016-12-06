@@ -14,7 +14,7 @@ char* slice_cmd(char* cmd, int begin, int end)
     return result;
 }
 
-void split_cmd(char* cmd, char delim, char*** result)
+void split_cmd(char* cmd, char delim, char** result)
 {
     int index = 0;
     int begin = 0;
@@ -22,7 +22,7 @@ void split_cmd(char* cmd, char delim, char*** result)
     {
         if(cmd[i] == delim)
         {
-            *result[index] = slice_cmd(cmd, begin, i);
+            result[index] = slice_cmd(cmd, begin, i);
             begin = i + 1;
             index++;
         }
@@ -33,12 +33,14 @@ pid_t jexec(char* cmd, int jid)
 {
     pid_t pid = fork();
     if(pid == -1)
+    {
         return pid;
+    }
     else if(pid == 0)
     {
         printf("child\n");
         char *cmd_list[sizeof(cmd)];
-        split_cmd(cmd, ' ', (char***)(&cmd_list));
+        split_cmd(cmd, ' ', (char**)(&cmd_list));
         jail_attach(jid);
         execve(cmd_list[0], cmd_list, NULL);
     }
@@ -51,19 +53,20 @@ pid_t jexec(char* cmd, int jid)
 
 char* create_name()
 {
-    char* result;
+    char* result = "test";
     char* alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for(int i = 0; i < 16; i++)
-    {
-        time_t clock;
-        result[i] = alphabet[i*sizeof(ctime(&clock))];
-    }
+    // for(int i = 0; i < 16; i++)
+    // {
+        //time_t clock;
+        //result[i] = alphabet[i*sizeof(ctime(&clock))];
+    // }
     return result;
 }
 
 char* create_tmp_dir(char* name)
 {
-    char* path = sprintf("/tmp/%s/", name);
+    char* path;
+    sprintf(path, "/tmp/%s/", name);
     int success = mkdir(path, 0755);
     if(success >= 0){
         return path;
