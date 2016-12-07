@@ -9,6 +9,8 @@
 
 char* slice_cmd(char* cmd, int begin, int end)
 {
+    if(sizeof(cmd) < end)
+        end = sizeof(cmd);
     char* result;
     memcpy(result, cmd, end - begin);
     return result;
@@ -32,6 +34,7 @@ void split_cmd(char* cmd, char delim, char** result)
 pid_t jexec(char* cmd, int jid)
 {
     pid_t pid = fork();
+    printf("pid: %d\n", pid);
     if(pid == -1)
     {
         return pid;
@@ -65,7 +68,7 @@ char* create_name()
 
 char* create_tmp_dir(char* name)
 {
-    char* path;
+    char* path = (char*) calloc(80, sizeof(char*));
     sprintf(path, "/tmp/%s/", name);
     int success = mkdir(path, 0755);
     if(success >= 0){
@@ -76,7 +79,7 @@ char* create_tmp_dir(char* name)
 
 struct JailWrapper* new_jail_wrapper(char* cmd)
 {
-    struct jail *_jail = (struct jail*) calloc(6, sizeof(jail));
+    struct jail *_jail = (struct jail*) calloc(6, sizeof(struct jail));
     struct in_addr *i_addr = (struct in_addr*) calloc(1, sizeof(struct in_addr));
     inet_aton("10.0.0.20", i_addr);
     _jail->version = 10;
@@ -92,7 +95,6 @@ struct JailWrapper* new_jail_wrapper(char* cmd)
     jail_wrapper->bsd_jail = _jail;
     jail_wrapper->pid = pid;
     jail_wrapper->user = getuid();
-    printf("here\n");
     return jail_wrapper;
 }
 
