@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <netinet/in.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
