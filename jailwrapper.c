@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <arpa/inet.h>
 
 #include "jailwrapper.h"
 
@@ -15,7 +12,7 @@ char* slice_cmd(char* cmd, int begin, int end)
     return result;
 }
 
-void split_cmd(char* cmd, char delim, char** result)
+char** split_cmd(char* cmd, char delim)
 {
     char** result = (char**)(malloc(sizeof(cmd)));
     int index = 0;
@@ -29,15 +26,14 @@ void split_cmd(char* cmd, char delim, char** result)
             index++;
         }
     }
+    return result;
 }
 
 pid_t jexec(char* cmd, int jid)
 {
     pid_t pid = fork();
     if(pid == -1)
-    {
         return pid;
-    }
     else if(pid == 0)
     {
         char **cmd_list = split_cmd(cmd, ' ');
@@ -94,7 +90,6 @@ struct JailWrapper* new_jail_wrapper(char* cmd)
     _jail->ip4s = 1;
     _jail->ip4 = i_addr;
     int jid = jail(_jail);
-    printf("created %d\n", jid);
     pid_t pid = jexec(cmd, jid);
     struct JailWrapper *jail_wrapper = (struct JailWrapper*) calloc(3, sizeof(JailWrapper));
     jail_wrapper->bsd_jail = _jail;
@@ -115,5 +110,5 @@ void set_wrapper_uid(struct JailWrapper *jw, uid_t user)
 
 void destroy(struct JailWrapper *wrapper)
 {
-    free(wrapper);
+    free(*jail);
 }
