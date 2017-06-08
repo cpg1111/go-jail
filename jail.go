@@ -2,6 +2,7 @@
 
 package jail
 
+// #cgo CFLAGS: -ggdb
 // #include <stdlib.h>
 // #include <unistd.h>
 // #include <sys/param.h>
@@ -15,7 +16,7 @@ import "C"
 import "fmt"
 
 type Jail struct {
-	Wrapper C.JailWrapper
+	Wrapper *C.JailWrapper
 }
 
 func New(cmd string) *Jail {
@@ -33,8 +34,11 @@ func New(cmd string) *Jail {
 	C.set_wrapper_pid(wrapper, pid)
 	uid := (C.uid_t)(C.getuid())
 	C.set_wrapper_uid(wrapper, uid)
-	return &Jail{}
+	return &Jail{
+		Wrapper: wrapper,
+	}
 }
 
 func (j *Jail) Destroy() {
+	C.destroy(j.Wrapper)
 }
