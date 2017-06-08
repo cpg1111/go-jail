@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <netinet/in.h>
@@ -7,8 +8,9 @@
 
 char* slice_cmd(char* cmd, int begin, int end)
 {
-    char* result;
-    memcpy(result, cmd, end - begin);
+    size_t s = (size_t)(end - begin);
+    char* result = (char*)(malloc(s));
+    memcpy(result, cmd, s);
     return result;
 }
 
@@ -31,6 +33,7 @@ char** split_cmd(char* cmd, char delim)
 
 pid_t jexec(char* cmd, int jid)
 {
+    raise(SIGINT);
     pid_t pid = fork();
     if(pid == -1)
         return pid;
